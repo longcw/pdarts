@@ -154,7 +154,7 @@ class Network(nn.Module):
     def _initialize_alphas(self):
         k = sum(1 for i in range(self._steps) for n in range(2+i))
         num_ops = self.switch_on
-        self.alphas_normal = nn.Parameter(torch.FloatTensor(1e-3*np.random.randn(k, num_ops)))
+        self.alphas_normal = nn.Parameter(torch.FloatTensor(1e-3*np.random.randn(k, num_ops)))  # 14 x 8
         self.alphas_reduce = nn.Parameter(torch.FloatTensor(1e-3*np.random.randn(k, num_ops)))
         self._arch_parameters = [
             self.alphas_normal,

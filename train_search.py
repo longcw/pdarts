@@ -100,7 +100,7 @@ def main():
     # build Network
     criterion = nn.CrossEntropyLoss()
     criterion = criterion.cuda()
-    switches = []
+    switches = []  # 14 x 8, the switch on each edge for each type of ops
     for i in range(14):
         switches.append([True for j in range(len(PRIMITIVES))])
     switches_normal = copy.deepcopy(switches)
@@ -182,7 +182,7 @@ def main():
                 # for the last stage, drop all Zero operations
                 drop = get_min_k_no_zero(normal_prob[i, :], idxs, num_to_drop[sp])
             else:
-                drop = get_min_k(normal_prob[i, :], num_to_drop[sp])
+                drop = get_min_k(normal_prob[i, :], num_to_drop[sp])  # for the specific edge i
             for idx in drop:
                 switches_normal[i][idxs[idx]] = False
         reduce_prob = F.softmax(arch_param[1], dim=-1).data.cpu().numpy()
@@ -361,7 +361,7 @@ def parse_network(switches_normal, switches_reduce):
     return genotype
 
 def get_min_k(input_in, k):
-    input = copy.deepcopy(input_in)
+    input = copy.deepcopy(input_in)  # 8
     index = []
     for i in range(k):
         idx = np.argmin(input)
