@@ -23,8 +23,8 @@ LABELS = [
     "snap_not_engage",
 ]
 
-# IMAGE_SIZE = (80, 80)
-IMAGE_SIZE = (32, 32)
+IMAGE_SIZE = (80, 80)
+# IMAGE_SIZE = (32, 32)
 
 
 class KeyboardImageDataset(Dataset):

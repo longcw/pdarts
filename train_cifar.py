@@ -15,6 +15,7 @@ import torch.backends.cudnn as cudnn
 
 from torch.autograd import Variable
 from model import NetworkCIFAR as Network
+from keyboard_data.dataset import KeyboardImageDataset
 
 
 parser = argparse.ArgumentParser("cifar")
@@ -38,7 +39,7 @@ parser.add_argument('--arch', type=str, default='PDARTS', help='which architectu
 parser.add_argument('--grad_clip', type=float, default=5, help='gradient clipping')
 parser.add_argument('--tmp_data_dir', type=str, default='/tmp/cache/', help='temp data dir')
 parser.add_argument('--note', type=str, default='try', help='note for this run')
-parser.add_argument('--cifar100', action='store_true', default=False, help='if use cifar100')
+parser.add_argument('--dataset', type=str, default='cifar10', choices=['cifar10', 'cifar100', 'keyboard'])
 
 args, unparsed = parser.parse_known_args()
 
@@ -52,12 +53,17 @@ fh = logging.FileHandler(os.path.join(args.save, 'log.txt'))
 fh.setFormatter(logging.Formatter(log_format))
 logging.getLogger().addHandler(fh)
 
-if args.cifar100:
+if args.dataset == 'cifar100':
     CIFAR_CLASSES = 100
-    data_folder = 'cifar-100-python'
-else:
+    stem_input_channels = 3
+elif args.dataset == 'cifar10':
     CIFAR_CLASSES = 10
-    data_folder = 'cifar-10-batches-py'
+    stem_input_channels = 3
+elif args.dataset == 'keyboard':
+    CIFAR_CLASSES = 9
+    stem_input_channels = 1
+else:
+    raise ValueError(args.dataset)
 
 def main():
     if not torch.cuda.is_available():
@@ -76,7 +82,8 @@ def main():
     print('---------Genotype---------')
     logging.info(genotype)
     print('--------------------------')
-    model = Network(args.init_channels, CIFAR_CLASSES, args.layers, args.auxiliary, genotype)
+    model = Network(args.init_channels, CIFAR_CLASSES, args.layers, args.auxiliary, 
+                    genotype, stem_input_channels=stem_input_channels)
     model = torch.nn.DataParallel(model)
     model = model.cuda()
     logging.info("param size = %fMB", utils.count_parameters_in_MB(model))
@@ -89,18 +96,19 @@ def main():
         momentum=args.momentum,
         weight_decay=args.weight_decay
         )
-
-    if args.cifar100:
+    
+    if args.dataset == 'cifar100':
         train_transform, valid_transform = utils._data_transforms_cifar100(args)
-    else:
-        train_transform, valid_transform = utils._data_transforms_cifar10(args)
-    if args.cifar100:
         train_data = dset.CIFAR100(root=args.tmp_data_dir, train=True, download=True, transform=train_transform)
         valid_data = dset.CIFAR100(root=args.tmp_data_dir, train=False, download=True, transform=valid_transform)
-    else:
+    elif args.dataset == 'cifar10':
+        train_transform, valid_transform = utils._data_transforms_cifar10(args)
         train_data = dset.CIFAR10(root=args.tmp_data_dir, train=True, download=True, transform=train_transform)
         valid_data = dset.CIFAR10(root=args.tmp_data_dir, train=False, download=True, transform=valid_transform)
-
+    elif args.dataset == 'keyboard':
+        train_data = KeyboardImageDataset(args.tmp_data_dir, subset='train', data_balance_rate=0.1, keep_size=True)
+        valid_data = KeyboardImageDataset(args.tmp_data_dir, subset='test', data_balance_rate=0, keep_size=True)
+        
     train_queue = torch.utils.data.DataLoader(
         train_data, batch_size=args.batch_size, shuffle=True, pin_memory=True, num_workers=args.workers)
 
