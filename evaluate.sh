@@ -15,5 +15,5 @@ python3 train_cifar.py \
         --auxiliary \
         --cutout \
         --save logs/ \
-        --arch PDARTS2 \
-        --note cifar10-pdarts2
+        --arch PDARTS3 \
+        --note cifar10-pdarts3

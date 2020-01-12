@@ -16,7 +16,7 @@ import copy
 from model_search import Network
 from genotypes import PRIMITIVES
 from genotypes import Genotype
-
+from keyboard_data.dataset import KeyboardImageDataset
 
 parser = argparse.ArgumentParser("cifar")
 parser.add_argument('--workers', type=int, default=2, help='number of workers to load dataset')
@@ -43,7 +43,7 @@ parser.add_argument('--note', type=str, default='try', help='note for this run')
 parser.add_argument('--dropout_rate', action='append', default=[], help='dropout rate of skip connect')
 parser.add_argument('--add_width', action='append', default=['0'], help='add channels')
 parser.add_argument('--add_layers', action='append', default=['0'], help='add layers')
-parser.add_argument('--cifar100', action='store_true', default=False, help='search with cifar100 dataset')
+parser.add_argument('--dataset', type=str, default='cifar10', choices=['cifar10', 'cifar100', 'keyboard'])
 
 args = parser.parse_args()
 
@@ -57,12 +57,18 @@ fh = logging.FileHandler(os.path.join(args.save, 'log.txt'))
 fh.setFormatter(logging.Formatter(log_format))
 logging.getLogger().addHandler(fh)
 
-if args.cifar100:
+if args.dataset == 'cifar100':
     CIFAR_CLASSES = 100
-    data_folder = 'cifar-100-python'
-else:
+    stem_input_channels = 3
+elif args.dataset == 'cifar10':
     CIFAR_CLASSES = 10
-    data_folder = 'cifar-10-batches-py'
+    stem_input_channels = 3
+elif args.dataset == 'keyboard':
+    CIFAR_CLASSES = 9
+    stem_input_channels = 1
+else:
+    raise ValueError(args.dataset)
+    
 def main():
     if not torch.cuda.is_available():
         logging.info('No GPU device available')
@@ -74,14 +80,14 @@ def main():
     torch.cuda.manual_seed(args.seed)
     logging.info("args = %s", args)
     #  prepare dataset
-    if args.cifar100:
+    if args.dataset == 'cifar100':
         train_transform, valid_transform = utils._data_transforms_cifar100(args)
-    else:
-        train_transform, valid_transform = utils._data_transforms_cifar10(args)
-    if args.cifar100:
         train_data = dset.CIFAR100(root=args.tmp_data_dir, train=True, download=True, transform=train_transform)
-    else:
+    elif args.dataset == 'cifar10':
+        train_transform, valid_transform = utils._data_transforms_cifar10(args)
         train_data = dset.CIFAR10(root=args.tmp_data_dir, train=True, download=True, transform=train_transform)
+    elif args.dataset == 'keyboard':
+        train_data = KeyboardImageDataset(args.tmp_data_dir, subset='train', data_balance_rate=0.2, keep_size=False)
 
     num_train = len(train_data)
     indices = list(range(num_train))
@@ -122,7 +128,12 @@ def main():
         drop_rate = [0.0, 0.0, 0.0]
     eps_no_archs = [10, 10, 10]
     for sp in range(len(num_to_keep)):
-        model = Network(args.init_channels + int(add_width[sp]), CIFAR_CLASSES, args.layers + int(add_layers[sp]), criterion, switches_normal=switches_normal, switches_reduce=switches_reduce, p=float(drop_rate[sp]))
+        model = Network(args.init_channels + int(add_width[sp]), CIFAR_CLASSES, 
+                        args.layers + int(add_layers[sp]), criterion, 
+                        switches_normal=switches_normal, 
+                        switches_reduce=switches_reduce, 
+                        p=float(drop_rate[sp]),
+                        stem_input_channels=stem_input_channels)
         model = nn.DataParallel(model)
         model = model.cuda()
         logging.info("param size = %fMB", utils.count_parameters_in_MB(model))
