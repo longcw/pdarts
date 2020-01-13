@@ -87,7 +87,7 @@ def main():
         train_transform, valid_transform = utils._data_transforms_cifar10(args)
         train_data = dset.CIFAR10(root=args.tmp_data_dir, train=True, download=True, transform=train_transform)
     elif args.dataset == 'keyboard':
-        train_data = KeyboardImageDataset(args.tmp_data_dir, subset='train', data_balance_rate=0.2, keep_size=False)
+        train_data = KeyboardImageDataset(args.tmp_data_dir, subset='train', data_balance_rate=0.1, keep_size=False)
 
     num_train = len(train_data)
     indices = list(range(num_train))

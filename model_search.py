@@ -99,9 +99,16 @@ class Network(nn.Module):
             ons = 0
         self.switch_on = switch_ons[0]
 
-        C_curr = stem_multiplier*C
+        # C_curr = stem_multiplier*C
+        # self.stem = nn.Sequential(
+        #     nn.Conv2d(stem_input_channels, C_curr, 3, padding=1, bias=False),
+        #     nn.BatchNorm2d(C_curr)
+        # )
+        
+        # specified for keybaord data
+        C_curr = C // 2
         self.stem = nn.Sequential(
-            nn.Conv2d(stem_input_channels, C_curr, 3, padding=1, bias=False),
+            nn.Conv2d(stem_input_channels, C_curr, kernel_size=3, stride=2, padding=1, bias=False),
             nn.BatchNorm2d(C_curr)
         )
     
