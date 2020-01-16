@@ -87,7 +87,7 @@ def main():
         train_transform, valid_transform = utils._data_transforms_cifar10(args)
         train_data = dset.CIFAR10(root=args.tmp_data_dir, train=True, download=True, transform=train_transform)
     elif args.dataset == 'keyboard':
-        train_data = KeyboardImageDataset(args.tmp_data_dir, subset='train', data_balance_rate=0.1, keep_size=False)
+        train_data = KeyboardImageDataset(args.tmp_data_dir, subset='train', data_balance_rate=0.05, keep_size=False)
 
     num_train = len(train_data)
     indices = list(range(num_train))
@@ -171,6 +171,12 @@ def main():
             logging.info('Train_acc %f', train_acc)
             epoch_duration = time.time() - epoch_start
             logging.info('Epoch time: %ds', epoch_duration)
+            if epoch % 4 == 0 or epochs - epoch < 5:
+                arch_param = model.module.arch_parameters()
+                normal_prob = F.softmax(arch_param[0], dim=sm_dim).data.cpu().numpy() 
+                reduce_prob = F.softmax(arch_param[1], dim=-1).data.cpu().numpy()
+                print(normal_prob)
+                print(reduce_prob)
             # validation
             if epochs - epoch < 5:
                 valid_acc, valid_obj = infer(valid_queue, model, criterion)

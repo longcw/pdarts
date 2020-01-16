@@ -3,17 +3,19 @@
 python3 train_search.py \
         --tmp_data_dir /data/keyboard_aoi_data \
         --save logs/ \
-        --add_layers 5 \
-        --add_layers 10 \
+        --layers 4 \
+        --add_layers 2 \
+        --add_layers 4 \
         --dropout_rate 0.1 \
-        --dropout_rate 0.4 \
-        --dropout_rate 0.7 \
-        --note keyboard-v4 \
+        --dropout_rate 0.2 \
+        --dropout_rate 0.2 \
+        --note keyboard-v7 \
         --dataset keyboard \
         --learning_rate 0.025 \
-        --init_channels 16 \
+        --init_channels 10 \
         --batch_size 64 \
-        --epochs 25
+        --epochs 35
+        # --arch_learning_rate 0.001
 
 # python3 train_cifar.py \
 #         --tmp_data_dir ./data \
