@@ -10,18 +10,11 @@ resources:
   ports: ["TENSORBOARD_PORT", "WORKER_PORT"]
   image: current-ubuntu18.04-cuda10.0
   cluster: simcloud-mr2.apple.com
-roles:
-  worker:
-    command: 'bash search_keyboard.sh'
-    environment_variables:
-      'CUDA_HOME': '/usr/local/cuda'
-      'LD_LIBRARY_PATH': '$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/lib/x86_64-linux-gnu'
-      'AWS_ACCESS_KEY_ID': 'MKIAZ9VN6I9H0L7DA819'
-      'AWS_SECRET_ACCESS_KEY': '912E06BAB18913EB8C1149FFE51861A32F260BF077E1CD73F9FA2E552F5CB7B8'
-      'AWS_REGION': 'store-028'
-      'S3_ENDPOINT': 'store-028.blobstore.apple.com'
-    resources:
-      num_nodes: 4
+command: 'bash search_keyboard.sh'
 environment_variables:
-  JOB_SERVER_PORT: ""
-  JOB_SERVER_HOST: ""
+  'CUDA_HOME': '/usr/local/cuda'
+  'LD_LIBRARY_PATH': '$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/lib/x86_64-linux-gnu'
+  'AWS_ACCESS_KEY_ID': 'MKIAZ9VN6I9H0L7DA819'
+  'AWS_SECRET_ACCESS_KEY': '912E06BAB18913EB8C1149FFE51861A32F260BF077E1CD73F9FA2E552F5CB7B8'
+  'AWS_REGION': 'store-028'
+  'S3_ENDPOINT': 'store-028.blobstore.apple.com'

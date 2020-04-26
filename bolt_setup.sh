@@ -1,7 +1,6 @@
 # install pip
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python3 get-pip.py pip==19.3.1
-python3 setup.py install
 
 # cuda
 CUDA_INSTALL_PATH=/usr/local
