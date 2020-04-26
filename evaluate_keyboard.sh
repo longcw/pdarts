@@ -14,9 +14,9 @@ python3 train_cifar.py \
         --tmp_data_dir /data/keyboard_aoi_data \
         --epoch 100 \
         --batch_size 96 \
-        --init_channels 12 \
-        --layers 17 \
+        --init_channels 10 \
+        --layers 10 \
         --save logs/ \
         --dataset keyboard \
-        --arch PDARTS_KEYBOARD \
+        --arch PDARTS_KEYBOARD2 \
         --note keyboard-pdarts

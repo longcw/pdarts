@@ -18,6 +18,13 @@ from genotypes import PRIMITIVES
 from genotypes import Genotype
 from keyboard_data.dataset import KeyboardImageDataset
 
+try:
+    import turibolt as bolt
+    save_dir = bolt.ARTIFACT_DIR
+except ImportError:
+    save_dir = "logs"
+
+
 parser = argparse.ArgumentParser("cifar")
 parser.add_argument('--workers', type=int, default=2, help='number of workers to load dataset')
 parser.add_argument('--batch_size', type=int, default=96, help='batch size')
@@ -32,7 +39,7 @@ parser.add_argument('--layers', type=int, default=5, help='total number of layer
 parser.add_argument('--cutout', action='store_true', default=False, help='use cutout')
 parser.add_argument('--cutout_length', type=int, default=16, help='cutout length')
 parser.add_argument('--drop_path_prob', type=float, default=0.3, help='drop path probability')
-parser.add_argument('--save', type=str, default='/tmp/checkpoints/', help='experiment path')
+parser.add_argument('--save', type=str, default=save_dir, help='experiment path')
 parser.add_argument('--seed', type=int, default=2, help='random seed')
 parser.add_argument('--grad_clip', type=float, default=5, help='gradient clipping')
 parser.add_argument('--train_portion', type=float, default=0.5, help='portion of training data')
@@ -175,8 +182,8 @@ def main():
                 arch_param = model.module.arch_parameters()
                 normal_prob = F.softmax(arch_param[0], dim=sm_dim).data.cpu().numpy() 
                 reduce_prob = F.softmax(arch_param[1], dim=-1).data.cpu().numpy()
-                print(normal_prob)
-                print(reduce_prob)
+                # print(normal_prob)
+                # print(reduce_prob)
             # validation
             if epochs - epoch < 5:
                 valid_acc, valid_obj = infer(valid_queue, model, criterion)

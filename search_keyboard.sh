@@ -2,7 +2,6 @@
 
 python3 train_search.py \
         --tmp_data_dir /data/keyboard_aoi_data \
-        --save logs/ \
         --layers 4 \
         --add_layers 2 \
         --add_layers 4 \
